@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String?
+  shopName      String?
+  upiId         String?   @map("upi_id")
+  gstNumber     String?   @map("gst_number")
+  role          String    @default("OWNER") // OWNER, MANAGER
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  products      Product[]
+  bills         Bill[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  price       Float
+  gstPercent  Float    @default(0) @map("gst_percent")
+  shopId      String   @map("shop_id")
+  owner       User     @relation(fields: [shopId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  billItems   BillItem[]
+
+  @@index([shopId])
+}
+
+model Bill {
+  id            String     @id @default(uuid())
+  billNumber    Int        @unique // SQLite doesn't support @default(autoincrement()) on non-ID fields. Handling via logic.
+  totalAmount   Float      @map("total_amount")
+  subtotal      Float
+  gstTotal      Float      @map("gst_total")
+  shopId        String     @map("shop_id")
+  owner         User       @relation(fields: [shopId], references: [id])
+  customerName  String?    @map("customer_name")
+  customerPhone String?    @map("customer_phone")
+  createdAt     DateTime   @default(now())
+  items         BillItem[]
+
+  @@index([shopId])
+}
+
+model BillItem {
+  id         String  @id @default(cuid())
+  billId     String  @map("bill_id")
+  productId  String  @map("product_id")
+  name       String  // Snapshot of product name
+  price      Float   // Snapshot of price at time of billing
+  quantity   Int
+  gstPercent Float   @map("gst_percent")
+  subtotal   Float
+  
+  bill       Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  product    Product @relation(fields: [productId], references: [id])
+
+  @@index([billId])
+  @@index([productId])
+}
