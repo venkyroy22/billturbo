@@ -56,6 +56,7 @@ export async function GET(req: Request) {
       where: { shopId: session.user.id },
       orderBy: { createdAt: "desc" },
       include: { items: true },
+      // isPaid and paidAt are automatically included (part of model)
     });
     return NextResponse.json(bills);
   } catch (error) {

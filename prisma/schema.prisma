@@ -42,7 +42,7 @@ model Product {
 
 model Bill {
   id            String     @id @default(uuid())
-  billNumber    Int        @unique // SQLite doesn't support @default(autoincrement()) on non-ID fields. Handling via logic.
+  billNumber    Int        @unique
   totalAmount   Float      @map("total_amount")
   subtotal      Float
   gstTotal      Float      @map("gst_total")
@@ -50,6 +50,8 @@ model Bill {
   owner         User       @relation(fields: [shopId], references: [id])
   customerName  String?    @map("customer_name")
   customerPhone String?    @map("customer_phone")
+  isPaid        Boolean    @default(false) @map("is_paid")
+  paidAt        DateTime?  @map("paid_at")
   createdAt     DateTime   @default(now())
   items         BillItem[]
 
