@@ -53,3 +53,12 @@ prisma_err.txt
 db_trace.txt
 test-db.js
 error.html
+
+# OpenNext
+.open-next
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
